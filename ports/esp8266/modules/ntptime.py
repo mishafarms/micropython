@@ -42,6 +42,7 @@ def settime(tz=None):
     tm = utime.gmtime(t)
     machine.RTC().datetime((tm[0], tm[1], tm[2], tm[6] + 1, tm[3], tm[4], tm[5], 0))
 
+
 def timezone(offset=None):
     global _local_ntp_delta
 
