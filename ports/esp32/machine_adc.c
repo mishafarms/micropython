@@ -94,24 +94,23 @@ STATIC mp_obj_t madc_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
     esp_err_t err = adc1_config_channel_atten(self->adc1_id, madc_cal_obj[self->adc1_id].adc_atten);
     if (err == ESP_OK) {
         // deal with the characteristics
-         madc_cal_obj[self->adc1_id].adc_cal_type = esp_adc_cal_characterize(ADC_UNIT_1,
-                                                                            madc_cal_obj[self->adc1_id].adc_atten,
-                                                                            ADC_WIDTH_12Bit,
-                                                                            DEFAULT_VREF,
-                                                                            &madc_cal_obj[self->adc1_id].adc_cal);
+        madc_cal_obj[self->adc1_id].adc_cal_type = esp_adc_cal_characterize(ADC_UNIT_1,
+            madc_cal_obj[self->adc1_id].adc_atten,
+            ADC_WIDTH_12Bit,
+            DEFAULT_VREF,
+            &madc_cal_obj[self->adc1_id].adc_cal);
         return MP_OBJ_FROM_PTR(self);
     }
     mp_raise_ValueError(MP_ERROR_TEXT("parameter error"));
 }
 
-static char *char_val_type(esp_adc_cal_value_t val_type)
-{
+static char *char_val_type(esp_adc_cal_value_t val_type) {
     if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-        return("Characterized using Two Point Value");
+        return "Characterized using Two Point Value";
     } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-        return("Characterized using eFuse Vref");
+        return "Characterized using eFuse Vref";
     } else {
-        return("Characterized using Default Vref");
+        return "Characterized using Default Vref";
     }
 }
 
@@ -163,10 +162,10 @@ STATIC mp_obj_t madc_atten(mp_obj_t self_in, mp_obj_t atten_in) {
                 break;
         }
         madc_cal_obj[self->adc1_id].adc_cal_type = esp_adc_cal_characterize(ADC_UNIT_1,
-                                                                           madc_cal_obj[self->adc1_id].adc_atten,
-                                                                           width,
-                                                                           DEFAULT_VREF,
-                                                                           &madc_cal_obj[self->adc1_id].adc_cal);
+            madc_cal_obj[self->adc1_id].adc_atten,
+            width,
+            DEFAULT_VREF,
+            &madc_cal_obj[self->adc1_id].adc_cal);
         return mp_const_none;
     }
     mp_raise_ValueError(MP_ERROR_TEXT("parameter error"));
@@ -181,12 +180,12 @@ STATIC mp_obj_t madc_width(mp_obj_t cls_in, mp_obj_t width_in) {
     }
 
     // change them all
-    for (int x = 0 ; x < ADC_CHANNELS_MAX ; x++){
+    for (int x = 0; x < ADC_CHANNELS_MAX; x++) {
         madc_cal_obj[x].adc_cal_type = esp_adc_cal_characterize(ADC_UNIT_1,
-                                                                madc_cal_obj[x].adc_atten,
-                                                                width,
-                                                                DEFAULT_VREF,
-                                                                &madc_cal_obj[x].adc_cal);
+            madc_cal_obj[x].adc_atten,
+            width,
+            DEFAULT_VREF,
+            &madc_cal_obj[x].adc_cal);
     }
 
     switch (width) {
