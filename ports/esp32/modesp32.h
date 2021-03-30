@@ -30,6 +30,7 @@ extern const mp_obj_type_t esp32_nvs_type;
 extern const mp_obj_type_t esp32_partition_type;
 extern const mp_obj_type_t esp32_rmt_type;
 extern const mp_obj_type_t esp32_ulp_type;
+extern const mp_obj_type_t esp32_servo_type;
 
 #ifdef CONFIG_BT_SPP_ENABLED
 extern const mp_obj_type_t esp32_rfcomm_type;
