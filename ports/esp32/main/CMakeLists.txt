@@ -3,7 +3,11 @@ get_filename_component(MICROPY_DIR ${PROJECT_DIR}/../.. ABSOLUTE)
 
 # Include core source components.
 include(${MICROPY_DIR}/py/py.cmake)
-include(${MICROPY_DIR}/extmod/extmod.cmake)
+
+if(NOT CMAKE_BUILD_EARLY_EXPANSION)
+    include(${MICROPY_DIR}/py/usermod.cmake)
+    include(${MICROPY_DIR}/extmod/extmod.cmake)
+endif()
 
 set(MICROPY_QSTRDEFS_PORT
     ${PROJECT_DIR}/qstrdefsport.h
@@ -21,7 +25,6 @@ set(MICROPY_SOURCE_LIB
     ${MICROPY_DIR}/lib/oofatfs/ffunicode.c
     ${MICROPY_DIR}/lib/timeutils/timeutils.c
     ${MICROPY_DIR}/lib/utils/interrupt_char.c
-    ${MICROPY_DIR}/lib/utils/stdout_helpers.c
     ${MICROPY_DIR}/lib/utils/sys_stdio_mphal.c
     ${MICROPY_DIR}/lib/utils/pyexec.c
 )
@@ -73,6 +76,7 @@ set(MICROPY_SOURCE_PORT
 set(MICROPY_SOURCE_QSTR
     ${MICROPY_SOURCE_PY}
     ${MICROPY_SOURCE_EXTMOD}
+    ${MICROPY_SOURCE_USERMOD}
     ${MICROPY_SOURCE_LIB}
     ${MICROPY_SOURCE_PORT}
 )
@@ -131,7 +135,8 @@ idf_component_register(
         ${MICROPY_SOURCE_DRIVERS}
         ${MICROPY_SOURCE_PORT}
     INCLUDE_DIRS
-        ${MICROPY_DIR}
+        ${MICROPY_INC_CORE}
+        ${MICROPY_INC_USERMOD}
         ${MICROPY_PORT_DIR}
         ${MICROPY_BOARD_DIR}
         ${CMAKE_BINARY_DIR}
@@ -147,6 +152,7 @@ set(MICROPY_CROSS_FLAGS -march=xtensawin)
 
 # Set compile options for this port.
 target_compile_definitions(${MICROPY_TARGET} PUBLIC
+    ${MICROPY_DEF_CORE}
     MICROPY_ESP_IDF_4=1
     MICROPY_VFS_FAT=1
     MICROPY_VFS_LFS2=1
@@ -162,24 +168,14 @@ target_compile_options(${MICROPY_TARGET} PUBLIC
     -Wno-missing-field-initializers
 )
 
+# Add additional extmod and usermod components.
+target_link_libraries(${MICROPY_TARGET} micropy_extmod_btree)
+target_link_libraries(${MICROPY_TARGET} usermod)
+
+
 # Collect all of the include directories and compile definitions for the IDF components.
 foreach(comp ${IDF_COMPONENTS})
-    get_target_property(type __idf_${comp} TYPE)
-    set(_inc OFF)
-    set(_def OFF)
-    if(${type} STREQUAL STATIC_LIBRARY)
-        get_target_property(_inc __idf_${comp} INCLUDE_DIRECTORIES)
-        get_target_property(_def __idf_${comp} COMPILE_DEFINITIONS)
-    elseif(${type} STREQUAL INTERFACE_LIBRARY)
-        get_target_property(_inc __idf_${comp} INTERFACE_INCLUDE_DIRECTORIES)
-        get_target_property(_def __idf_${comp} INTERFACE_COMPILE_DEFINITIONS)
-    endif()
-    if(_inc)
-        list(APPEND MICROPY_CPP_INC_EXTRA ${_inc})
-    endif()
-    if(_def)
-        list(APPEND MICROPY_CPP_DEF_EXTRA ${_def})
-    endif()
+    micropy_gather_target_properties(__idf_${comp})
 endforeach()
 
 if(IDF_VERSION_MINOR GREATER_EQUAL 2)
