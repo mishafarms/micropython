@@ -78,7 +78,7 @@ void mp_task(void *pvParameter) {
     #if MICROPY_PY_THREAD
     mp_thread_init(pxTaskGetStackStart(NULL), MP_TASK_STACK_SIZE / sizeof(uintptr_t));
     #endif
-    #if CONFIG_USB_ENABLED
+    #if MICROPY_CONSOLE_USB
     usb_init();
     #else
     uart_init();

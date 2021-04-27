@@ -28,7 +28,7 @@
 #include "py/mphal.h"
 #include "usb.h"
 
-#if CONFIG_USB_ENABLED
+#if CONFIG_USB_ENABLED && MICROPY_CONSOLE_USB
 
 #include "tinyusb.h"
 #include "tusb_cdc_acm.h"
@@ -48,6 +48,7 @@ static void usb_callback_rx(int itf, cdcacm_event_t *event) {
         if (len == 0) {
             break;
         }
+
         for (size_t i = 0; i < len; ++i) {
             if (usb_rx_buf[i] == mp_interrupt_char) {
                 mp_keyboard_interrupt();
@@ -89,4 +90,4 @@ void usb_tx_strn(const char *str, size_t len) {
     }
 }
 
-#endif // CONFIG_USB_ENABLED
+#endif // CONFIG_USB_ENABLED && MICROPY_CONSOLE_USB

@@ -34,6 +34,7 @@
 #include "py/runtime.h"
 #include "py/mphal.h"
 
+#if !MICROPY_CONSOLE_USB
 STATIC void uart_irq_handler(void *arg);
 
 void uart_init(void) {
@@ -62,3 +63,4 @@ STATIC void IRAM_ATTR uart_irq_handler(void *arg) {
         }
     }
 }
+#endif // MICROPY_CONSOLE_USB

@@ -111,7 +111,7 @@ void mp_hal_stdout_tx_strn(const char *str, uint32_t len) {
     if (release_gil) {
         MP_THREAD_GIL_EXIT();
     }
-    #if CONFIG_USB_ENABLED
+    #if CONFIG_USB_ENABLED && MICROPY_CONSOLE_USB
     usb_tx_strn(str, len);
     #else
     for (uint32_t i = 0; i < len; ++i) {

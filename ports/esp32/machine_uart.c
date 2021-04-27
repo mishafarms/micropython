@@ -270,9 +270,11 @@ STATIC mp_obj_t machine_uart_make_new(const mp_obj_type_t *type, size_t n_args, 
 
     // Attempts to use UART0 from Python has resulted in all sorts of fun errors.
     // FIXME: UART0 is disabled for now.
+    #if !MICROPY_CONSOLE_USB
     if (uart_num == UART_NUM_0) {
         mp_raise_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("UART(%d) is disabled (dedicated to REPL)"), uart_num);
     }
+    #endif
 
     // Defaults
     uart_config_t uartcfg = {
