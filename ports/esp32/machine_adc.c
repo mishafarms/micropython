@@ -72,7 +72,11 @@ STATIC mp_obj_t madc_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
 
     static int initialized = 0;
     if (!initialized) {
-        adc1_config_width(ADC_WIDTH_12Bit);
+        #if CONFIG_IDF_TARGET_ESP32S2
+        adc1_config_width(ADC_WIDTH_BIT_13);
+        #else
+        adc1_config_width(ADC_WIDTH_BIT_12);
+        #endif
         adc_bit_width = 12;
         initialized = 1;
     }
@@ -189,6 +193,7 @@ STATIC mp_obj_t madc_width(mp_obj_t cls_in, mp_obj_t width_in) {
     }
 
     switch (width) {
+        #if CONFIG_IDF_TARGET_ESP32
         case ADC_WIDTH_9Bit:
             adc_bit_width = 9;
             break;
@@ -201,6 +206,11 @@ STATIC mp_obj_t madc_width(mp_obj_t cls_in, mp_obj_t width_in) {
         case ADC_WIDTH_12Bit:
             adc_bit_width = 12;
             break;
+        #elif CONFIG_IDF_TARGET_ESP32S2
+        case ADC_WIDTH_BIT_13:
+            adc_bit_width = 13;
+            break;
+            #endif
         default:
             break;
     }
@@ -230,10 +240,14 @@ STATIC const mp_rom_map_elem_t madc_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_ATTN_6DB), MP_ROM_INT(ADC_ATTEN_6db) },
     { MP_ROM_QSTR(MP_QSTR_ATTN_11DB), MP_ROM_INT(ADC_ATTEN_11db) },
 
+    #if CONFIG_IDF_TARGET_ESP32
     { MP_ROM_QSTR(MP_QSTR_WIDTH_9BIT), MP_ROM_INT(ADC_WIDTH_9Bit) },
     { MP_ROM_QSTR(MP_QSTR_WIDTH_10BIT), MP_ROM_INT(ADC_WIDTH_10Bit) },
     { MP_ROM_QSTR(MP_QSTR_WIDTH_11BIT), MP_ROM_INT(ADC_WIDTH_11Bit) },
     { MP_ROM_QSTR(MP_QSTR_WIDTH_12BIT), MP_ROM_INT(ADC_WIDTH_12Bit) },
+    #elif CONFIG_IDF_TARGET_ESP32S2
+    { MP_ROM_QSTR(MP_QSTR_WIDTH_13BIT), MP_ROM_INT(ADC_WIDTH_BIT_13) },
+    #endif
 };
 
 STATIC MP_DEFINE_CONST_DICT(madc_locals_dict, madc_locals_dict_table);
