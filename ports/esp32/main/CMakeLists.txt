@@ -1,5 +1,7 @@
 # Set location of base MicroPython directory.
-get_filename_component(MICROPY_DIR ${PROJECT_DIR}/../.. ABSOLUTE)
+if(NOT MICROPY_DIR)
+    get_filename_component(MICROPY_DIR ${PROJECT_DIR}/../.. ABSOLUTE)
+endif()
 
 # Include core source components.
 include(${MICROPY_DIR}/py/py.cmake)
@@ -130,6 +132,9 @@ if(IDF_TARGET STREQUAL "esp32")
     list(APPEND IDF_COMPONENTS esp32)
 elseif(IDF_TARGET STREQUAL "esp32s2")
     list(APPEND IDF_COMPONENTS esp32s2)
+    list(APPEND IDF_COMPONENTS tinyusb)
+elseif(IDF_TARGET STREQUAL "esp32s3")
+    list(APPEND IDF_COMPONENTS esp32s3)
     list(APPEND IDF_COMPONENTS tinyusb)
 endif()
 

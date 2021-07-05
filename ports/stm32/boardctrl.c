@@ -143,8 +143,7 @@ void boardctrl_top_soft_reset_loop(boardctrl_state_t *state) {
 }
 
 int boardctrl_run_boot_py(boardctrl_state_t *state) {
-    bool run_boot_py = state->reset_mode == BOARDCTRL_RESET_MODE_NORMAL
-        || state->reset_mode == BOARDCTRL_RESET_MODE_FACTORY_FILESYSTEM;
+    bool run_boot_py = state->reset_mode != BOARDCTRL_RESET_MODE_SAFE_MODE;
 
     if (run_boot_py) {
         // Run boot.py, if it exists.
@@ -156,6 +155,8 @@ int boardctrl_run_boot_py(boardctrl_state_t *state) {
             return BOARDCTRL_GOTO_SOFT_RESET_EXIT;
         }
         if (!ret) {
+            // There was an error, prevent main.py from running and flash LEDs.
+            state->reset_mode = BOARDCTRL_RESET_MODE_SAFE_MODE;
             flash_error(4);
         }
     }
@@ -176,8 +177,7 @@ int boardctrl_run_boot_py(boardctrl_state_t *state) {
 }
 
 int boardctrl_run_main_py(boardctrl_state_t *state) {
-    bool run_main_py = (state->reset_mode == BOARDCTRL_RESET_MODE_NORMAL
-        || state->reset_mode == BOARDCTRL_RESET_MODE_FACTORY_FILESYSTEM)
+    bool run_main_py = state->reset_mode != BOARDCTRL_RESET_MODE_SAFE_MODE
         && pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL;
 
     if (run_main_py) {
