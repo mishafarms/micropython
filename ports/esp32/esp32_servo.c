@@ -23,7 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+#if CONFIG_IDF_TARGET_ESP32
 #include "py/runtime.h"
 #include "modesp32.h"
 #include "mphalport.h"
@@ -235,4 +235,4 @@ const mp_obj_type_t esp32_servo_type = {
     .make_new = esp32_servo_make_new,
     .locals_dict = (mp_obj_dict_t *)&esp32_servo_locals_dict,
 };
-
+#endif
