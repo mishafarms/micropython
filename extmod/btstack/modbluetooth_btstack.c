@@ -1085,10 +1085,13 @@ int mp_bluetooth_gatts_read(uint16_t value_handle, uint8_t **value, size_t *valu
     return mp_bluetooth_gatts_db_read(MP_STATE_PORT(bluetooth_btstack_root_pointers)->gatts_db, value_handle, value, value_len);
 }
 
-int mp_bluetooth_gatts_write(uint16_t value_handle, const uint8_t *value, size_t value_len) {
+int mp_bluetooth_gatts_write(uint16_t value_handle, const uint8_t *value, size_t value_len, bool send_update) {
     DEBUG_printf("mp_bluetooth_gatts_write\n");
     if (!mp_bluetooth_is_active()) {
         return ERRNO_BLUETOOTH_NOT_ACTIVE;
+    }
+    if (send_update) {
+        return MP_EOPNOTSUPP;
     }
     return mp_bluetooth_gatts_db_write(MP_STATE_PORT(bluetooth_btstack_root_pointers)->gatts_db, value_handle, value, value_len);
 }
@@ -1262,13 +1265,13 @@ int mp_bluetooth_gap_scan_stop(void) {
     return 0;
 }
 
-int mp_bluetooth_gap_peripheral_connect(uint8_t addr_type, const uint8_t *addr, int32_t duration_ms) {
+int mp_bluetooth_gap_peripheral_connect(uint8_t addr_type, const uint8_t *addr, int32_t duration_ms, int32_t min_conn_interval_us, int32_t max_conn_interval_us) {
     DEBUG_printf("mp_bluetooth_gap_peripheral_connect\n");
 
     uint16_t conn_scan_interval = 60000 / 625;
     uint16_t conn_scan_window = 30000 / 625;
-    uint16_t conn_interval_min = 10000 / 1250;
-    uint16_t conn_interval_max = 30000 / 1250;
+    uint16_t conn_interval_min = (min_conn_interval_us ? min_conn_interval_us : 10000) / 1250;
+    uint16_t conn_interval_max = (max_conn_interval_us ? max_conn_interval_us : 30000) / 1250;
     uint16_t conn_latency = 4;
     uint16_t supervision_timeout = duration_ms / 10; // default = 720
     uint16_t min_ce_length = 10000 / 625;
